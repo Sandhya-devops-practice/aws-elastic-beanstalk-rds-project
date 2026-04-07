@@ -55,6 +55,72 @@ Initially, I was unable to connect to the RDS MySQL instance using MySQL Workben
 * Created database, tables, and inserted data
 * Gained strong understanding of AWS networking concepts
 
+## ⚠️ (Elastic Beanstalk Deployment Issues)
+
+During the deployment of the PHP application using Elastic Beanstalk, several issues were encountered while accessing the application URL and monitoring environment health.
+
+### 🔹 1. 403 Forbidden Error on Application URL
+
+After deployment, accessing the Elastic Beanstalk URL resulted in a **403 Forbidden (nginx)** error instead of the expected application output.
+
+#### 🔍 Root Cause:
+- Incorrect ZIP file structure
+- `index.php` was not properly recognized as the default file
+- File was initially saved as a `.txt` file instead of `.php`
+- File was not placed at the root level inside the ZIP
+
+#### 🛠️ Solution:
+- Ensured `index.php` file was correctly named (not `.txt`)
+- Placed `index.php` at the root level (no nested folders)
+- Recreated the ZIP file (`my-app.zip`) correctly
+- Redeployed the application using **Upload and Deploy**
+
+#### ✅ Outcome:
+- Application loaded successfully
+- Beanstalk URL displayed the expected output from RDS
+
+---
+
+### 🔹 2. Environment Health Showing “Degraded”
+
+The environment status initially showed **Degraded** after deployment.
+
+#### 🔍 Root Cause:
+- Application was not serving content properly
+- Missing or incorrectly structured application file
+
+#### 🛠️ Solution:
+- Fixed application file structure
+- Redeployed the updated ZIP file
+
+#### ✅ Outcome:
+- Environment health changed to **OK (Green)**
+
+---
+
+### 🔹 3. Composer Warning During Deployment
+
+A warning appeared in the Events tab:
+
+> "You didn't include a 'composer.json' file in your source bundle."
+
+#### 🔍 Root Cause:
+- Elastic Beanstalk checks for Composer dependencies in PHP applications
+
+#### 🛠️ Solution:
+- No action required since the application does not use external dependencies
+
+#### ✅ Outcome:
+- Deployment completed successfully without affecting application functionality
+
+---
+
+### 💡 Key Learnings
+
+- Importance of correct ZIP structure in Elastic Beanstalk deployments  
+- Understanding how Beanstalk detects default files like `index.php`  
+- Debugging using the **Events tab** and environment health status  
+
 ---
 
 ### 💡 Key Learnings:
@@ -172,6 +238,114 @@ Example Output:
 ID: 1 - Name: AWS Project
 
 ---
+
+## 📦 Application Packaging
+
+The PHP application was packaged into a ZIP file before deployment.
+
+- Ensured file is `index.php` (not `.txt`)
+- Zipped file at root level
+- Avoided nested folder inside ZIP
+
+
+## 🛠️ Elastic Beanstalk Deployment Steps
+
+### 🚀 Step 1: Create Application
+
+- Navigated to AWS Elastic Beanstalk
+- Clicked **Create Application**
+- Application Name: `php-app`
+- Platform: **PHP**
+- Uploaded application source bundle (`my-app.zip`)
+
+---
+
+### ⚙️ Step 2: Configure Environment
+
+- Environment Type: **Web Server**
+- Platform: PHP (Amazon Linux 2023)
+- Configuration Preset: **Single Instance (Free Tier Eligible)**
+
+---
+
+### 🔐 Step 3: Configure Service Access
+
+- Selected IAM roles for:
+  - Elastic Beanstalk Service Role
+  - EC2 Instance Profile
+
+> These roles allow Elastic Beanstalk to create and manage AWS resources like EC2, Auto Scaling, and Load Balancer.
+
+---
+
+### 🌐 Step 4: Configure Networking
+
+- Used **Default VPC**
+- Enabled **Public IP Address**
+- Selected **1 public subnet** for EC2 instance
+- Did **NOT enable database** (RDS is external)
+
+> This ensures the application is accessible over the internet.
+
+---
+
+### 📈 Step 5: Configure Instance & Scaling
+
+- Environment Type: **Single Instance**
+- Instance Type: `t3.micro` (Free Tier)
+- Architecture: `x86_64`
+- Configured EC2 Security Group:
+  - HTTP (80)
+  - SSH (22)
+
+> This setup ensures low-cost deployment with basic scalability.
+
+---
+
+### 🚀 Step 6: Deploy Application
+
+- Reviewed configuration
+- Clicked **Create Environment**
+- Waited ~5–10 minutes for deployment
+
+---
+
+### 🌍 Step 7: Access Application
+
+- Accessed application using Beanstalk URL
+- Successfully connected to RDS database
+- Output displayed:
+
+### 🔹 Deployment Events
+
+This screenshot shows the successful deployment of the Elastic Beanstalk environment.
+
+- Environment launched successfully  
+- EC2 instance created  
+- Application deployed  
+- URL generated for access  
+
+![Deployment Events](beanstalk-deployment-events.png)
+
+## 🧪 Application Output
+
+Successfully deployed the PHP application using AWS Elastic Beanstalk and connected it to Amazon RDS.
+
+The application retrieves data from the database and displays it in the browser.
+
+### Output:
+
+ID: 1 - Name: AWS Project
+
+![Output](application-output.png)
+
+
+
+
+
+
+
+
 
 ## ⚠️ Challenges Faced
 - Database connection issues due to security groups
